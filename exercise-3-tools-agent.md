@@ -256,10 +256,6 @@ const MODEL_NAME = 'gpt-4o-mini';                    // OpenAI
 // const MODEL_NAME = 'claude-sonnet-4-5-20250929';   // Anthropic
 // const MODEL_NAME = 'gemini-2.0-flash';             // Google
 
-const { getWeather } = proxyActivities<typeof activities>({
-  startToCloseTimeout: '1 minute',
-});
-
 export async function haikuAgent(prompt: string): Promise<string> {
   const result = await generateText({
     model: temporalProvider.languageModel(MODEL_NAME),
@@ -270,6 +266,10 @@ export async function haikuAgent(prompt: string): Promise<string> {
 }
 
 export async function toolsAgent(question: string): Promise<string> {
+  const { getWeather } = proxyActivities<typeof activities>({
+    startToCloseTimeout: '1 minute',
+  });
+
   const result = await generateText({
     model: temporalProvider.languageModel(MODEL_NAME),
     prompt: question,
