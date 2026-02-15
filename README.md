@@ -36,7 +36,7 @@ temporal --version
 ### Install project dependencies
 
 ```bash
-cd intro-temporal-vercel-tutorial
+cd intro-temporal-vercel-ai-tutorial
 npm install
 ```
 
