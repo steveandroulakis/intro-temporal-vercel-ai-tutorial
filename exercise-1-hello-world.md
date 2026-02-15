@@ -157,7 +157,13 @@ export async function greet(name: string): Promise<string> {
 }
 ```
 
-Run the workflow again (no need to restart the Worker — `ts-node` picks up changes):
+Restart the Worker to pick up code changes (press `Ctrl+C` in the Worker terminal, then restart):
+
+```bash
+npm start
+```
+
+Then run the workflow again:
 
 ```bash
 npm run workflow
@@ -187,6 +193,12 @@ export async function helloWorld(name: string): Promise<string> {
 
   return greeting;
 }
+```
+
+Restart the Worker to pick up the Workflow change (`Ctrl+C`, then):
+
+```bash
+npm start
 ```
 
 Run the workflow:
@@ -237,7 +249,13 @@ export async function helloWorld(name: string): Promise<string> {
 }
 ```
 
-Run it to verify everything works:
+Restart the Worker to pick up the changes (`Ctrl+C`, then):
+
+```bash
+npm start
+```
+
+Run the workflow:
 
 ```bash
 npm run workflow
