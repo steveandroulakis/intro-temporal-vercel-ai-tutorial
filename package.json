@@ -28,7 +28,7 @@
     "@temporalio/worker": "^1.14.1",
     "@temporalio/workflow": "^1.14.1",
     "@temporalio/ai-sdk": "^1.14.1",
-    "@sap/ai-sdk-vercel-adapter": "file:sap-ai-sdk-vercel-adapter-0.2.0.tgz",
+    "@sap/ai-sdk-vercel-adapter": "file:sap-ai-sdk-vercel-adapter-0.3.0.tgz",
     "@ai-sdk/openai": "^3.0.0",
     "@ai-sdk/anthropic": "^3.0.0",
     "@ai-sdk/google": "^3.0.0",

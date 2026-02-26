@@ -9,7 +9,6 @@ import * as activities from './activities';
 
 // TODO: Import AiSdkPlugin
 // import { AiSdkPlugin } from '@temporalio/ai-sdk';
-// import type { ProviderV3 } from '@ai-sdk/provider';
 
 // TODO: Import your chosen provider (uncomment ONE):
 // import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';  // Option A: SAP Gen AI Hub (Recommended)
@@ -23,31 +22,22 @@ async function run() {
   });
 
   try {
-    // TODO (Exercise 2): For SAP Gen AI Hub, create the provider and wrapper:
+    // TODO (Exercise 2): Create your provider and add the plugins array.
     //
-    // const { createSAPAI } = await import('@sap/ai-sdk-vercel-adapter');
-    // const sapai = createSAPAI();
+    // For SAP Gen AI Hub (recommended):
+    //   const sapai = createSAPAI();
     //
-    // // Wrap SAP provider to satisfy ProviderV3 interface
-    // const wrappedProvider: ProviderV3 = {
-    //   specificationVersion: 'v3' as const,
-    //   languageModel: (modelId: string) => sapai.languageModel(modelId),
-    //   embeddingModel: () => { throw new Error('Not supported'); },
-    //   imageModel: () => { throw new Error('Not supported'); },
-    // };
+    //   plugins: [
+    //     new AiSdkPlugin({ modelProvider: sapai }),
+    //   ],
+    //
+    // For direct providers (OpenAI, Anthropic, Google):
+    //   plugins: [
+    //     new AiSdkPlugin({ modelProvider: openai }),
+    //   ],
 
     const worker = await Worker.create({
-      // TODO (Exercise 2): Add the plugins array.
-      //
-      // For SAP Gen AI Hub:
-      // plugins: [
-      //   new AiSdkPlugin({ modelProvider: wrappedProvider }),
-      // ],
-      //
-      // For direct providers (OpenAI, Anthropic, Google):
-      // plugins: [
-      //   new AiSdkPlugin({ modelProvider: openai }),
-      // ],
+      // TODO: Add plugins array here (see instructions above)
       connection,
       namespace: 'default',
       taskQueue: 'ai-sdk',
