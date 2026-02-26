@@ -84,6 +84,7 @@ import type * as activities from './activities';
 
 > [!NOTE]
 > Make sure the Exercise 2 imports are also uncommented (`generateText`, `temporalProvider`, `load-polyfills`). Exercise 3 builds on Exercise 2.
+> Also ensure your `MODEL_NAME` is set correctly (e.g., `'anthropic--claude-4.5-sonnet'` for SAP Gen AI Hub).
 
 ### 2b. Implement toolsAgent
 
@@ -252,9 +253,10 @@ import { proxyActivities } from '@temporalio/workflow';
 import { z } from 'zod';
 import type * as activities from './activities';
 
-const MODEL_NAME = 'gpt-4o-mini';                    // OpenAI
-// const MODEL_NAME = 'claude-sonnet-4-5-20250929';   // Anthropic
-// const MODEL_NAME = 'gemini-2.0-flash';             // Google
+const MODEL_NAME = 'anthropic--claude-4.5-sonnet';   // SAP Gen AI Hub (Recommended)
+// const MODEL_NAME = 'gpt-4o-mini';                 // OpenAI
+// const MODEL_NAME = 'claude-sonnet-4-5-20250929';  // Anthropic
+// const MODEL_NAME = 'gemini-2.0-flash';            // Google
 
 export async function haikuAgent(prompt: string): Promise<string> {
   const result = await generateText({

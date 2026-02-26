@@ -15,7 +15,7 @@ Three exercises take you from zero to running a crash-recoverable AI agent with 
 
 - **Node.js 18+** (v22.x recommended)
 - **Temporal CLI** installed
-- **An LLM API key** (OpenAI, Anthropic, or Google — pick one)
+- **An LLM API key** (SAP Gen AI Hub recommended, or OpenAI/Anthropic/Google)
 
 ### Install Temporal CLI
 
@@ -42,9 +42,39 @@ npm install
 
 ## LLM Provider Setup
 
-These exercises use the **Vercel AI SDK** with provider adapters. You need an API key for **one** of the following providers.
+These exercises use the **Vercel AI SDK** with provider adapters. You need credentials for **one** of the following providers.
 
-### Option A: OpenAI
+### Option A: SAP Gen AI Hub (Recommended)
+
+SAP Gen AI Hub provides access to multiple LLM providers (Anthropic Claude, OpenAI GPT, Google Gemini) through a unified SAP BTP interface with enterprise-grade security and governance.
+
+1. Get your SAP AI Core service key from BTP cockpit
+2. Create a `.env` file with your credentials:
+
+```bash
+# Option A1: Service Key as Base64 (simplest)
+AICORE_SERVICE_KEY_BASE64=eyJjbGllbnRpZCI6...
+
+# Option A2: Individual credentials
+AICORE_CLIENT_ID=your-client-id
+AICORE_CLIENT_SECRET=your-client-secret
+AICORE_AUTH_URL=https://your-tenant.authentication.sap.hana.ondemand.com/oauth/token
+AICORE_BASE_URL=https://api.ai.prod.eu-central-1.aws.ml.hana.ondemand.com
+AICORE_RESOURCE_GROUP=default
+
+# Required: Orchestration deployment ID
+ORCHESTRATION_DEPLOYMENT_ID=your-deployment-id
+```
+
+In the exercise code, you'll uncomment:
+```ts
+import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';
+const sapai = createSAPAI();
+```
+
+Model name: `anthropic--claude-4.5-sonnet` (or `gpt-5`, `gemini-2.5-pro`)
+
+### Option B: OpenAI
 
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -56,7 +86,7 @@ import { openai } from '@ai-sdk/openai';
 ```
 Model name: `gpt-4o-mini`
 
-### Option B: Anthropic
+### Option C: Anthropic
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
@@ -68,7 +98,7 @@ import { anthropic } from '@ai-sdk/anthropic';
 ```
 Model name: `claude-sonnet-4-5-20250929`
 
-### Option C: Google
+### Option D: Google
 
 ```bash
 export GOOGLE_GENERATIVE_AI_API_KEY=...
@@ -95,6 +125,10 @@ src/
 ├── ai-workflows.ts     # AI workflow definitions (Exercises 2 & 3)
 ├── ai-worker.ts        # AI worker with AiSdkPlugin (Exercises 2 & 3)
 └── ai-client.ts        # Client for AI workflows (Exercises 2 & 3)
+solution/               # Complete solutions for reference
+├── ai-worker.ts        # Completed AI worker (SAP Gen AI Hub)
+├── ai-workflows.ts     # Completed AI workflows
+└── activities.ts       # Completed activities
 ```
 
 ## npm scripts
@@ -106,6 +140,22 @@ src/
 | `npm run start:ai` | Start the AI worker (Exercises 2 & 3) |
 | `npm run workflow:ai:haiku` | Run the Haiku Agent workflow |
 | `npm run workflow:ai:tools` | Run the Tools Agent workflow |
+
+## SAP Gen AI Hub Integration
+
+This workshop includes the `@sap/ai-sdk-vercel-adapter` which provides:
+
+- **LanguageModelV3 Interface**: Full Vercel AI SDK 6.x compatibility
+- **Multi-Provider Support**: Access Anthropic Claude, OpenAI GPT, Google Gemini via SAP Gen AI Hub
+- **Tool Calling**: Native function calling via SAP Orchestration
+- **Streaming**: Full SSE streaming support
+- **OAuth 2.0**: Native SAP BTP authentication with automatic token refresh
+
+The adapter connects the Vercel AI SDK to SAP's Gen AI Hub Orchestration service:
+
+```
+Temporal Workflow → Vercel AI SDK → SAP Adapter → SAP Orchestration → Gen AI Hub → LLM
+```
 
 ## Start here
 

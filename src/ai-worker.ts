@@ -9,11 +9,13 @@ import * as activities from './activities';
 
 // TODO: Import AiSdkPlugin
 // import { AiSdkPlugin } from '@temporalio/ai-sdk';
+// import type { ProviderV3 } from '@ai-sdk/provider';
 
 // TODO: Import your chosen provider (uncomment ONE):
-// import { openai } from '@ai-sdk/openai';          // Option A: OpenAI
-// import { anthropic } from '@ai-sdk/anthropic';     // Option B: Anthropic
-// import { google } from '@ai-sdk/google';           // Option C: Google
+// import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';  // Option A: SAP Gen AI Hub (Recommended)
+// import { openai } from '@ai-sdk/openai';                    // Option B: OpenAI
+// import { anthropic } from '@ai-sdk/anthropic';              // Option C: Anthropic
+// import { google } from '@ai-sdk/google';                    // Option D: Google
 
 async function run() {
   const connection = await NativeConnection.connect({
@@ -21,12 +23,30 @@ async function run() {
   });
 
   try {
+    // TODO (Exercise 2): For SAP Gen AI Hub, create the provider and wrapper:
+    //
+    // const { createSAPAI } = await import('@sap/ai-sdk-vercel-adapter');
+    // const sapai = createSAPAI();
+    //
+    // // Wrap SAP provider to satisfy ProviderV3 interface
+    // const wrappedProvider: ProviderV3 = {
+    //   specificationVersion: 'v3' as const,
+    //   languageModel: (modelId: string) => sapai.languageModel(modelId),
+    //   embeddingModel: () => { throw new Error('Not supported'); },
+    //   imageModel: () => { throw new Error('Not supported'); },
+    // };
+
     const worker = await Worker.create({
-      // TODO (Exercise 2): Add the plugins array. Uncomment and set your provider:
+      // TODO (Exercise 2): Add the plugins array.
+      //
+      // For SAP Gen AI Hub:
       // plugins: [
-      //   new AiSdkPlugin({
-      //     modelProvider: openai,       // Match your import above
-      //   }),
+      //   new AiSdkPlugin({ modelProvider: wrappedProvider }),
+      // ],
+      //
+      // For direct providers (OpenAI, Anthropic, Google):
+      // plugins: [
+      //   new AiSdkPlugin({ modelProvider: openai }),
       // ],
       connection,
       namespace: 'default',

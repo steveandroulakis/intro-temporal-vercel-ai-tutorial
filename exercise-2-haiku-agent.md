@@ -12,7 +12,7 @@ In this exercise you'll add the Vercel AI SDK to your Temporal project and make 
 **Prerequisites:**
 - Exercise 1 completed
 - Temporal dev server running (`temporal server start-dev`)
-- LLM provider API key exported (see [README.md](README.md#llm-provider-setup))
+- LLM provider configured (see [README.md](README.md#llm-provider-setup))
 
 ---
 
@@ -54,22 +54,54 @@ import { AiSdkPlugin } from '@temporalio/ai-sdk';
 
 ### 1b. Import your provider
 
-Uncomment **one** provider import based on your API key:
+Uncomment **one** provider import based on your configuration:
 
 ```ts
-// Option A: OpenAI
-import { openai } from '@ai-sdk/openai';
+// Option A: SAP Gen AI Hub (Recommended)
+import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';
 
-// Option B: Anthropic
+// Option B: OpenAI
+// import { openai } from '@ai-sdk/openai';
+
+// Option C: Anthropic
 // import { anthropic } from '@ai-sdk/anthropic';
 
-// Option C: Google
+// Option D: Google
 // import { google } from '@ai-sdk/google';
 ```
 
-### 1c. Add the plugins array
+### 1c. Create provider instance and add plugins array
 
-Uncomment the `plugins` array in `Worker.create()` and set your provider:
+For SAP Gen AI Hub, create the provider instance and add the `plugins` array in `Worker.create()`:
+
+```ts
+async function run() {
+  const connection = await NativeConnection.connect({
+    address: 'localhost:7233',
+  });
+
+  try {
+    // For SAP Gen AI Hub, create the provider instance
+    const sapai = createSAPAI();
+
+    const worker = await Worker.create({
+      plugins: [
+        new AiSdkPlugin({
+          modelProvider: sapai,       // SAP provider instance
+        }),
+      ],
+      connection,
+      namespace: 'default',
+      taskQueue: 'ai-sdk',
+      workflowsPath: require.resolve('./ai-workflows'),
+      activities,
+    });
+    // ...
+  }
+}
+```
+
+For direct providers (OpenAI, Anthropic, Google), it's simpler:
 
 ```ts
 const worker = await Worker.create({
@@ -78,27 +110,23 @@ const worker = await Worker.create({
       modelProvider: openai,       // Match your import above
     }),
   ],
-  connection,
-  namespace: 'default',
-  taskQueue: 'ai-sdk',
-  workflowsPath: require.resolve('./ai-workflows'),
-  activities,
+  // ...
 });
 ```
 
-The `modelProvider` tells the plugin which LLM provider to use when creating models. The string you pass to `temporalProvider.languageModel()` in workflows (like `'gpt-4o-mini'`) gets forwarded to this provider.
+The `modelProvider` tells the plugin which LLM provider to use when creating models. The string you pass to `temporalProvider.languageModel()` in workflows (like `'anthropic--claude-4.5-sonnet'`) gets forwarded to this provider.
 
 > [!TIP]
-> Only the Worker needs your API key. The Client process — the one that starts Workflows — has no knowledge of LLM providers or credentials.
+> Only the Worker needs your credentials. The Client process — the one that starts Workflows — has no knowledge of LLM providers or credentials.
 
 <details>
-<summary>Complete ai-worker.ts</summary>
+<summary>Complete ai-worker.ts (SAP Gen AI Hub)</summary>
 
 ```ts
 import { NativeConnection, Worker } from '@temporalio/worker';
 import * as activities from './activities';
 import { AiSdkPlugin } from '@temporalio/ai-sdk';
-import { openai } from '@ai-sdk/openai';          // or anthropic/google
+import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';
 
 async function run() {
   const connection = await NativeConnection.connect({
@@ -106,10 +134,12 @@ async function run() {
   });
 
   try {
+    const sapai = createSAPAI();
+
     const worker = await Worker.create({
       plugins: [
         new AiSdkPlugin({
-          modelProvider: openai,
+          modelProvider: sapai,
         }),
       ],
       connection,
@@ -159,10 +189,15 @@ import { temporalProvider } from '@temporalio/ai-sdk';
 Uncomment the `MODEL_NAME` constant that matches your provider:
 
 ```ts
-const MODEL_NAME = 'gpt-4o-mini';                    // OpenAI
-// const MODEL_NAME = 'claude-sonnet-4-5-20250929';   // Anthropic
-// const MODEL_NAME = 'gemini-2.0-flash';             // Google
+const MODEL_NAME = 'anthropic--claude-4.5-sonnet';   // SAP Gen AI Hub (Recommended)
+// const MODEL_NAME = 'gpt-4o-mini';                 // OpenAI
+// const MODEL_NAME = 'claude-sonnet-4-5-20250929';  // Anthropic
+// const MODEL_NAME = 'gemini-2.0-flash';            // Google
 ```
+
+> [!NOTE]
+> SAP Gen AI Hub model names use the format `provider--model-name` (e.g., `anthropic--claude-4.5-sonnet`).
+> Direct providers use their native model names (e.g., `gpt-4o-mini`).
 
 ### 2c. Implement haikuAgent
 
@@ -185,7 +220,7 @@ This is standard Vercel AI SDK code. The only difference from non-Temporal code 
 
 ## Step 3: Run it
 
-Make sure your API key is exported in your terminal environment.
+Make sure your `.env` file is configured with your provider credentials (for SAP Gen AI Hub) or your API key is exported (for direct providers).
 
 ### Terminal 2: Start the AI Worker
 
@@ -196,6 +231,7 @@ npm run start:ai
 You should see:
 ```
 AI Worker started — listening on task queue: ai-sdk
+Using SAP Gen AI Hub via Orchestration
 ```
 
 ### Terminal 3: Run the Haiku Workflow
@@ -242,6 +278,7 @@ This means:
 |---------|-------------|
 | **AiSdkPlugin** | Worker plugin that auto-wraps LLM calls as Activities |
 | **temporalProvider** | Workflow-side model factory — passes model names to the Worker's configured provider |
+| **SAP Gen AI Hub** | Access multiple LLM providers through SAP BTP with OAuth authentication |
 | **Auto-wrapped Activity** | `generateText()` call became a Temporal Activity with zero boilerplate |
 | **Observability** | LLM call visible in Temporal UI with full input/output |
 | **Crash safety** | If Worker crashes after LLM responds, result is replayed — no re-invocation, no double charges |
