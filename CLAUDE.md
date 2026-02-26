@@ -16,7 +16,7 @@ Participant-facing exercises for Hour 2 of the SAP x Temporal workshop. Three ex
 
 ## LLM Provider
 
-**Primary: SAP Gen AI Hub** via `@sap/ai-sdk-vercel-adapter` — provides access to Anthropic Claude, OpenAI GPT, and Google Gemini through SAP BTP with OAuth authentication.
+**Primary: SAP Gen AI Hub** via `@sap/ai-sdk-vercel-adapter` (v0.3.0) — provides access to Anthropic Claude, OpenAI GPT, and Google Gemini through SAP BTP with OAuth authentication. The adapter implements the full Vercel AI SDK `ProviderV3` interface for seamless integration.
 
 **Alternative providers**: Direct Vercel AI SDK adapters — `@ai-sdk/openai`, `@ai-sdk/anthropic`, `@ai-sdk/google`.
 
@@ -26,7 +26,8 @@ Participants uncomment their chosen provider in `ai-worker.ts` and set `MODEL_NA
 
 Environment variables (in `.env`):
 - `AICORE_SERVICE_KEY_BASE64` (or individual `AICORE_*` credentials)
-- `ORCHESTRATION_DEPLOYMENT_ID`
+- `ORCHESTRATION_DEPLOYMENT_ID` (required for language models)
+- `EMBEDDING_DEPLOYMENT_ID` (optional, for embedding models)
 
 Model names use format `provider--model-name` (e.g., `anthropic--claude-4.5-sonnet`).
 
@@ -36,19 +37,37 @@ Model names use format `provider--model-name` (e.g., `anthropic--claude-4.5-sonn
 |------|---------|
 | `src/activities.ts` | `greet()` complete, `getWeather()` TODO for Exercise 3 |
 | `src/workflows.ts` | `helloWorld()` complete — participants modify in Exercise 1 |
+| `src/worker.ts` | Exercise 1 worker (task queue `hello-world`) |
+| `src/client.ts` | Exercise 1 client |
 | `src/ai-workflows.ts` | `haikuAgent()` + `toolsAgent()` stubs with TODO instructions |
-| `src/ai-worker.ts` | Worker with commented-out `AiSdkPlugin` config (SAP as Option A) |
+| `src/ai-worker.ts` | AI Worker with commented-out `AiSdkPlugin` config (SAP as Option A) |
 | `src/ai-client.ts` | Client routing to haiku/tools via CLI arg (complete) |
+| `solution/` | Complete solutions for all AI exercises |
 | `.env.example` | Environment variable template for all providers |
-| `sap-ai-sdk-vercel-adapter-0.2.0.tgz` | SAP Gen AI Hub Vercel adapter V3 |
+| `sap-ai-sdk-vercel-adapter-0.3.0.tgz` | SAP Gen AI Hub Vercel adapter (ProviderV3) |
 
 ## SAP Adapter Integration
 
-The `@sap/ai-sdk-vercel-adapter` is included as a local tarball and provides:
-- LanguageModelV3 interface (Vercel AI SDK 6.x compatible)
-- Multi-provider support via SAP Orchestration
+The `@sap/ai-sdk-vercel-adapter` (v0.3.0) is included as a local tarball and provides:
+- **ProviderV3 interface** — works directly with Temporal's `AiSdkPlugin` (no wrapper needed)
+- **LanguageModelV3** — for chat/completion via SAP Orchestration
+- **EmbeddingModelV3** — for embeddings via Azure OpenAI
+- Multi-provider support via SAP Orchestration (Claude, GPT, Gemini)
 - Tool calling support
 - OAuth 2.0 authentication with automatic token refresh
+
+Usage in Worker:
+```ts
+import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';
+
+const sapai = createSAPAI();  // Reads config from environment
+const worker = await Worker.create({
+  plugins: [
+    new AiSdkPlugin({ modelProvider: sapai }),  // Works directly!
+  ],
+  // ...
+});
+```
 
 ## Lesson Format
 

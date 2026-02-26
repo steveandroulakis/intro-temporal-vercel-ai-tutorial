@@ -12,10 +12,11 @@
 // import { temporalProvider } from '@temporalio/ai-sdk';
 
 // ---------------------------------------------------------------------------
-// Exercise 3: Uncomment these imports for the Tools Agent
+// Exercise 3: Add these additional imports for the Tools Agent
+// (Keep the Exercise 2 imports above uncommented!)
 // ---------------------------------------------------------------------------
 // import { proxyActivities } from '@temporalio/workflow';
-// import { tool, stepCountIs } from 'ai';
+// import { tool, stepCountIs } from 'ai';  // Note: add to the 'ai' import above
 // import { z } from 'zod';
 // import type * as activities from './activities';
 

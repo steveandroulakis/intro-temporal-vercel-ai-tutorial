@@ -8,6 +8,7 @@
     "start:watch": "nodemon src/worker.ts",
     "workflow": "ts-node src/client.ts",
     "start:ai": "ts-node -r dotenv/config src/ai-worker.ts",
+    "start:ai:solution": "ts-node -r dotenv/config solution/ai-worker.ts",
     "start:ai:watch": "nodemon -r dotenv/config src/ai-worker.ts",
     "workflow:ai:haiku": "ts-node src/ai-client.ts haiku",
     "workflow:ai:tools": "ts-node src/ai-client.ts tools"
@@ -28,7 +29,7 @@
     "@temporalio/worker": "^1.14.1",
     "@temporalio/workflow": "^1.14.1",
     "@temporalio/ai-sdk": "^1.14.1",
-    "@sap/ai-sdk-vercel-adapter": "file:sap-ai-sdk-vercel-adapter-0.2.0.tgz",
+    "@sap/ai-sdk-vercel-adapter": "file:sap-ai-sdk-vercel-adapter-0.3.0.tgz",
     "@ai-sdk/openai": "^3.0.0",
     "@ai-sdk/anthropic": "^3.0.0",
     "@ai-sdk/google": "^3.0.0",

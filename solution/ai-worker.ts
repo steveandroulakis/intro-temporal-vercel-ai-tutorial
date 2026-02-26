@@ -1,7 +1,6 @@
 import { NativeConnection, Worker } from '@temporalio/worker';
 import * as activities from './activities';
 import { AiSdkPlugin } from '@temporalio/ai-sdk';
-import type { ProviderV3 } from '@ai-sdk/provider';
 
 // Alternative providers (uncomment ONE if not using SAP Gen AI Hub):
 // import { openai } from '@ai-sdk/openai';
@@ -14,32 +13,22 @@ async function run() {
   });
 
   try {
-    // Dynamic import for ESM module
+    // Dynamic import for SAP Gen AI Hub (ESM module)
     const { createSAPAI } = await import('@sap/ai-sdk-vercel-adapter');
     
     // Create SAP Gen AI Hub provider (reads config from environment variables)
+    // This implements ProviderV3 directly - no wrapper needed!
     const sapai = createSAPAI();
-
-    // Wrap SAP provider to satisfy ProviderV3 interface
-    // Temporal AI SDK only uses languageModel, but the type requires all methods
-    const wrappedProvider: ProviderV3 = {
-      specificationVersion: 'v3' as const,
-      languageModel: (modelId: string) => sapai.languageModel(modelId),
-      embeddingModel: () => { throw new Error('Embedding model not supported via SAP Gen AI Hub'); },
-      imageModel: () => { throw new Error('Image model not supported via SAP Gen AI Hub'); },
-    };
 
     const worker = await Worker.create({
       plugins: [
         new AiSdkPlugin({
-          modelProvider: wrappedProvider,
+          modelProvider: sapai,  // SAP provider works directly!
         }),
       ],
       // For alternative providers (OpenAI, Anthropic, Google), use:
       // plugins: [
-      //   new AiSdkPlugin({
-      //     modelProvider: openai,  // or anthropic, or google
-      //   }),
+      //   new AiSdkPlugin({ modelProvider: openai }),
       // ],
       connection,
       namespace: 'default',
