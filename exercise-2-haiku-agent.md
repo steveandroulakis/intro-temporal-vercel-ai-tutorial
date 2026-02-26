@@ -57,8 +57,7 @@ import { AiSdkPlugin } from '@temporalio/ai-sdk';
 Uncomment **one** provider import based on your configuration:
 
 ```ts
-// Option A: SAP Gen AI Hub (Recommended)
-import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';
+// Option A: SAP Gen AI Hub - uses dynamic import inside run() (see Step 1c)
 
 // Option B: OpenAI
 // import { openai } from '@ai-sdk/openai';
@@ -70,9 +69,13 @@ import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';
 // import { google } from '@ai-sdk/google';
 ```
 
+> [!NOTE]
+> SAP Gen AI Hub uses a dynamic import inside the `run()` function due to ESM module requirements.
+> Direct providers (OpenAI, Anthropic, Google) use standard static imports at the top of the file.
+
 ### 1c. Create provider instance and add plugins array
 
-For SAP Gen AI Hub, create the provider instance and add the `plugins` array in `Worker.create()`:
+For SAP Gen AI Hub, use **dynamic import** and create the provider instance inside `run()`:
 
 ```ts
 async function run() {
@@ -81,7 +84,8 @@ async function run() {
   });
 
   try {
-    // For SAP Gen AI Hub, create the provider instance
+    // For SAP Gen AI Hub: dynamic import (ESM module)
+    const { createSAPAI } = await import('@sap/ai-sdk-vercel-adapter');
     const sapai = createSAPAI();
 
     const worker = await Worker.create({
@@ -126,7 +130,6 @@ The `modelProvider` tells the plugin which LLM provider to use when creating mod
 import { NativeConnection, Worker } from '@temporalio/worker';
 import * as activities from './activities';
 import { AiSdkPlugin } from '@temporalio/ai-sdk';
-import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';
 
 async function run() {
   const connection = await NativeConnection.connect({
@@ -134,6 +137,8 @@ async function run() {
   });
 
   try {
+    // Dynamic import for SAP Gen AI Hub (ESM module)
+    const { createSAPAI } = await import('@sap/ai-sdk-vercel-adapter');
     const sapai = createSAPAI();
 
     const worker = await Worker.create({
@@ -150,6 +155,7 @@ async function run() {
     });
 
     console.log('AI Worker started — listening on task queue: ai-sdk');
+    console.log('Using SAP Gen AI Hub via Orchestration');
     console.log('Temporal UI: http://localhost:8233');
     await worker.run();
   } finally {

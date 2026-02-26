@@ -2,9 +2,6 @@ import { NativeConnection, Worker } from '@temporalio/worker';
 import * as activities from './activities';
 import { AiSdkPlugin } from '@temporalio/ai-sdk';
 
-// SAP Gen AI Hub provider (implements ProviderV3 directly)
-import { createSAPAI } from '@sap/ai-sdk-vercel-adapter';
-
 // Alternative providers (uncomment ONE if not using SAP Gen AI Hub):
 // import { openai } from '@ai-sdk/openai';
 // import { anthropic } from '@ai-sdk/anthropic';
@@ -16,8 +13,11 @@ async function run() {
   });
 
   try {
+    // Dynamic import for SAP Gen AI Hub (ESM module)
+    const { createSAPAI } = await import('@sap/ai-sdk-vercel-adapter');
+    
     // Create SAP Gen AI Hub provider (reads config from environment variables)
-    // This now implements ProviderV3 directly - no wrapper needed!
+    // This implements ProviderV3 directly - no wrapper needed!
     const sapai = createSAPAI();
 
     const worker = await Worker.create({
